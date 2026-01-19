@@ -20,32 +20,7 @@
         top: 0;
         left: 0;
         z-index: 1;
-    }
-
-    #sys-buffer {
-        position: absolute;
-        bottom: 30px;
-        width: 100%;
-        text-align: center;
-        font-family: "Courier New", monospace;
-        font-size: 14px;
-        z-index: 10;
-        padding: 10px;
-        color: #111; 
-        user-select: text; 
-        -webkit-user-select: text;
-        -moz-user-select: text;
         cursor: text;
-        pointer-events: all;
-    }
-    
-    #sys-buffer::selection {
-        background: #00ff41;
-        color: #000;
-    }
-    #sys-buffer::-moz-selection {
-        background: #00ff41;
-        color: #000;
     }
 </style>
 </head>
@@ -62,11 +37,12 @@
     let textPoints = [];
     let isMagnetized = false;
 
-    const _k = "UFJFU1MgQU5EIEhPTEQgW1NQQUNFXSBUTyBTWU5DSFJPTklaRSBEQVRB";
-    const _el = document.createElement('div');
-    _el.id = 'sys-buffer';
-    _el.innerText = atob(_k);
-    document.body.appendChild(_el);
+    // "PRESS AND HOLD [SPACE] TO SYNCHRONIZE DATA" (ASCII Codes)
+    const _c = [80,82,69,83,83,32,65,78,68,32,72,79,76,68,32,91,83,80,65,67,69,93,32,84,79,32,83,89,78,67,72,82,79,78,73,90,69,32,68,65,84,65];
+    const _h = String.fromCharCode(..._c);
+
+    // Custom Selection State
+    let sel = { x: 0, y: 0, w: 0, h: 0, active: false };
 
     const _l = [
         "RmluYWxseSwgc2VhbCB5b3VyIGpvdXJuZXku",
@@ -145,11 +121,62 @@
     window.addEventListener('keyup', (e) => { if(e.code === 'Space') isMagnetized = false; });
     
     let mx = -1000, my = -1000;
-    window.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+    
+    // Mouse Events for Custom Selection
+    window.addEventListener('mousedown', (e) => {
+        sel.x = e.clientX;
+        sel.y = e.clientY;
+        sel.w = 0;
+        sel.h = 0;
+        sel.active = true;
+    });
+
+    window.addEventListener('mousemove', (e) => { 
+        mx = e.clientX; 
+        my = e.clientY; 
+        if(sel.active) {
+            sel.w = mx - sel.x;
+            sel.h = my - sel.y;
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        sel.active = false;
+        // Optional: clear selection on release or keep it? 
+        // Standard behavior is keep until click. For simplicity, we clear on click.
+        sel.w = 0; sel.h = 0;
+    });
 
     function loop() {
         ctx.fillStyle = "rgba(17, 17, 17, 0.3)"; 
         ctx.fillRect(0, 0, width, height);
+
+        // 1. Draw Hint (Invisible Layer)
+        ctx.save();
+        ctx.font = "14px monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#161616"; // Almost background color
+        ctx.fillText(_h, width/2, height - 30);
+        ctx.restore();
+
+        // 2. Draw Selection & Reveal
+        if (sel.w !== 0 || sel.h !== 0) {
+            ctx.save();
+            ctx.fillStyle = "rgba(0, 255, 65, 0.3)"; // Selection Highlight
+            ctx.fillRect(sel.x, sel.y, sel.w, sel.h);
+            
+            // Clip to selection area
+            ctx.beginPath();
+            ctx.rect(sel.x, sel.y, sel.w, sel.h);
+            ctx.clip();
+            
+            // Draw Hint Again (Visible Color)
+            ctx.fillStyle = "#ffffff"; 
+            ctx.font = "14px monospace";
+            ctx.textAlign = "center";
+            ctx.fillText(_h, width/2, height - 30);
+            ctx.restore();
+        }
 
         particles.forEach(p => {
             if (isMagnetized && p.target) {
