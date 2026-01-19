@@ -22,7 +22,7 @@
         z-index: 1;
     }
 
-    #secret-hint {
+    #sys-buffer {
         position: absolute;
         bottom: 30px;
         width: 100%;
@@ -39,19 +39,17 @@
         pointer-events: all;
     }
     
-    #secret-hint::selection {
+    #sys-buffer::selection {
         background: #00ff41;
         color: #000;
     }
-    #secret-hint::-moz-selection {
+    #sys-buffer::-moz-selection {
         background: #00ff41;
         color: #000;
     }
 </style>
 </head>
 <body>
-
-<div id="secret-hint"></div>
 
 <canvas id="world"></canvas>
 
@@ -64,8 +62,11 @@
     let textPoints = [];
     let isMagnetized = false;
 
-    const _h = "UFJFU1MgQU5EIEhPTEQgW1NQQUNFXSBUTyBTWU5DSFJPTklaRSBEQVRB";
-    document.getElementById('secret-hint').innerText = atob(_h);
+    const _k = "UFJFU1MgQU5EIEhPTEQgW1NQQUNFXSBUTyBTWU5DSFJPTklaRSBEQVRB";
+    const _el = document.createElement('div');
+    _el.id = 'sys-buffer';
+    _el.innerText = atob(_k);
+    document.body.appendChild(_el);
 
     const _l = [
         "RmluYWxseSwgc2VhbCB5b3VyIGpvdXJuZXku",
