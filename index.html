@@ -11,7 +11,7 @@
         overflow: hidden;
         color: #888;
         font-family: sans-serif;
-        user-select: none; /* Disable selection mostly */
+        user-select: none;
     }
 
     canvas {
@@ -22,7 +22,6 @@
         z-index: 1;
     }
 
-   
     #secret-hint {
         position: absolute;
         bottom: 30px;
@@ -31,20 +30,15 @@
         font-family: "Courier New", monospace;
         font-size: 14px;
         z-index: 10;
-        padding: 10px; /* Make it easier to grab */
-        
-        /* Camouflage: Same color as background */
+        padding: 10px;
         color: #111; 
-        
-        /* Mechanics: Allow selection to reveal */
         user-select: text; 
         -webkit-user-select: text;
         -moz-user-select: text;
         cursor: text;
-        pointer-events: all; /* Ensure mouse can interact */
+        pointer-events: all;
     }
     
-    /* Ensure selection color contrasts */
     #secret-hint::selection {
         background: #00ff41;
         color: #000;
@@ -57,7 +51,6 @@
 </head>
 <body>
 
-<!-- The text is injected by JS so it's hidden in source -->
 <div id="secret-hint"></div>
 
 <canvas id="world"></canvas>
@@ -71,16 +64,10 @@
     let textPoints = [];
     let isMagnetized = false;
 
-   
     const _h = "UFJFU1MgQU5EIEhPTEQgW1NQQUNFXSBUTyBTWU5DSFJPTklaRSBEQVRB";
     document.getElementById('secret-hint').innerText = atob(_h);
 
-    // Obfuscated Message Segments
-    // 1. Finally, seal your journey.
-    // 2. The final step confirms all that you've done.
-    // 3. Solve the riddle and verify your answer on the portal.
-    // 4. Good luck!
-    const _lines = [
+    const _l = [
         "RmluYWxseSwgc2VhbCB5b3VyIGpvdXJuZXku",
         "VGhlIGZpbmFsIHN0ZXAgY29uZmlybXMgYWxsIHRoYXQgeW91J3ZlIGRvbmUu",
         "U29sdmUgdGhlIHJpZGRsZSBhbmQgdmVyaWZ5IHlvdXIgYW5zd2VyIG9uIHRoZSBwb3J0YWwu",
@@ -90,35 +77,30 @@
     function init() {
         resize();
         
-        // 1. Generate Points from Text
         const tCan = document.createElement('canvas');
         const tCtx = tCan.getContext('2d');
         tCan.width = width;
         tCan.height = height;
         
-        // Configuration for text layout
         tCtx.textAlign = "center";
         tCtx.textBaseline = "middle";
         tCtx.fillStyle = "red";
         
-        // Dynamic font size based on screen width
         const fontSize = Math.min(width / 40, 30); 
         tCtx.font = `bold ${fontSize}px Arial`;
 
-        // Render decoded lines to temp canvas
         const lineHeight = fontSize * 1.5;
-        const totalHeight = _lines.length * lineHeight;
+        const totalHeight = _l.length * lineHeight;
         const startY = (height / 2) - (totalHeight / 2) + (lineHeight / 2);
 
-        _lines.forEach((line, index) => {
+        _l.forEach((line, index) => {
             const decoded = atob(line);
             tCtx.fillText(decoded, width / 2, startY + (index * lineHeight));
         });
         
         const idata = tCtx.getImageData(0, 0, width, height).data;
         
-        // Scan for pixels to create target points
-        const step = 2; // High density for legibility of small text
+        const step = 2;
         for(let y=0; y<height; y+=step) {
             for(let x=0; x<width; x+=step) {
                 const alpha = idata[(y * width + x) * 4 + 3];
@@ -128,12 +110,9 @@
             }
         }
 
-        // 2. Create Particles
-        // Ensure we have enough particles for the text, plus some extra noise
         const count = Math.max(textPoints.length, 5000); 
         
         for(let i=0; i<count; i++) {
-            // Assign a target if available, else null (noise particle)
             const targetIndex = i < textPoints.length ? i : null;
             const target = targetIndex !== null ? textPoints[targetIndex] : null;
             
@@ -143,7 +122,6 @@
                 vx: (Math.random() - 0.5) * 2,
                 vy: (Math.random() - 0.5) * 2,
                 target: target,
-                // Target particles are Cyan, noise is dark gray
                 color: target ? '#00ffff' : '#222' 
             });
         }
@@ -162,41 +140,32 @@
         init();
     });
 
-    
     window.addEventListener('keydown', (e) => { if(e.code === 'Space') isMagnetized = true; });
     window.addEventListener('keyup', (e) => { if(e.code === 'Space') isMagnetized = false; });
     
-   
     let mx = -1000, my = -1000;
     window.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
 
     function loop() {
-        
         ctx.fillStyle = "rgba(17, 17, 17, 0.3)"; 
         ctx.fillRect(0, 0, width, height);
 
         particles.forEach(p => {
-          
             if (isMagnetized && p.target) {
-             
                 const dx = p.target.x - p.x;
                 const dy = p.target.y - p.y;
-               
                 p.vx += dx * 0.08; 
                 p.vy += dy * 0.08;
-                p.vx *= 0.85; // Dampen
+                p.vx *= 0.85;
                 p.vy *= 0.85;
             } else {
-                // Brownian / Float
                 p.vx += (Math.random() - 0.5) * 0.2;
                 p.vy += (Math.random() - 0.5) * 0.2;
-                // Speed limit
                 const max = 3;
                 if(Math.abs(p.vx) > max) p.vx *= 0.9;
                 if(Math.abs(p.vy) > max) p.vy *= 0.9;
             }
 
-            // Mouse Repel (Fluid interaction)
             const dx = p.x - mx;
             const dy = p.y - my;
             const dist = Math.sqrt(dx*dx + dy*dy);
@@ -209,11 +178,9 @@
             p.x += p.vx;
             p.y += p.vy;
 
-            // Bounce edges
             if (p.x < 0 || p.x > width) p.vx *= -1;
             if (p.y < 0 || p.y > height) p.vy *= -1;
 
-            // Draw
             ctx.fillStyle = p.color;
             ctx.fillRect(p.x, p.y, 1.5, 1.5); 
         });
