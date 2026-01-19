@@ -11,12 +11,42 @@
         overflow: hidden;
         color: #888;
         font-family: sans-serif;
-        user-select: none;
+        user-select: none; /* Disable selection mostly */
     }
-    /* Hint removed as requested */
+
+    canvas {
+        display: block;
+    }
+
+    /* THE HIDDEN HINT */
+    #secret-hint {
+        position: absolute;
+        bottom: 30px;
+        width: 100%;
+        text-align: center;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        z-index: 10;
+        
+        /* Camouflage: Same color as background */
+        color: #111; 
+        
+        /* Mechanics: Allow selection to reveal */
+        user-select: text; 
+        cursor: text;
+    }
+    
+    /* Ensure selection color contrasts */
+    #secret-hint::selection {
+        background: #00ff41;
+        color: #000;
+    }
 </style>
 </head>
 <body>
+
+<!-- The text is here, but invisible until highlighted -->
+<div id="secret-hint">PRESS AND HOLD [SPACE] TO SYNCHRONIZE DATA</div>
 
 <canvas id="world"></canvas>
 
@@ -88,7 +118,6 @@
         
         for(let i=0; i<count; i++) {
             // Assign a target if available, else null (noise particle)
-            // We scramble the mapping so they don't just form lines instantly
             const targetIndex = i < textPoints.length ? i : null;
             const target = targetIndex !== null ? textPoints[targetIndex] : null;
             
