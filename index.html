@@ -16,9 +16,13 @@
 
     canvas {
         display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
     }
 
-    /* THE HIDDEN HINT */
+   
     #secret-hint {
         position: absolute;
         bottom: 30px;
@@ -27,13 +31,17 @@
         font-family: "Courier New", monospace;
         font-size: 14px;
         z-index: 10;
+        padding: 10px; /* Make it easier to grab */
         
         /* Camouflage: Same color as background */
         color: #111; 
         
         /* Mechanics: Allow selection to reveal */
         user-select: text; 
+        -webkit-user-select: text;
+        -moz-user-select: text;
         cursor: text;
+        pointer-events: all; /* Ensure mouse can interact */
     }
     
     /* Ensure selection color contrasts */
@@ -41,12 +49,16 @@
         background: #00ff41;
         color: #000;
     }
+    #secret-hint::-moz-selection {
+        background: #00ff41;
+        color: #000;
+    }
 </style>
 </head>
 <body>
 
-<!-- The text is here, but invisible until highlighted -->
-<div id="secret-hint">PRESS AND HOLD [SPACE] TO SYNCHRONIZE DATA</div>
+<!-- The text is injected by JS so it's hidden in source -->
+<div id="secret-hint"></div>
 
 <canvas id="world"></canvas>
 
@@ -58,6 +70,10 @@
     let particles = [];
     let textPoints = [];
     let isMagnetized = false;
+
+   
+    const _h = "UFJFU1MgQU5EIEhPTEQgW1NQQUNFXSBUTyBTWU5DSFJPTklaRSBEQVRB";
+    document.getElementById('secret-hint').innerText = atob(_h);
 
     // Obfuscated Message Segments
     // 1. Finally, seal your journey.
@@ -146,26 +162,26 @@
         init();
     });
 
-    // Inputs (Secret Interaction: Spacebar)
+    
     window.addEventListener('keydown', (e) => { if(e.code === 'Space') isMagnetized = true; });
     window.addEventListener('keyup', (e) => { if(e.code === 'Space') isMagnetized = false; });
     
-    // Mouse repel effect
+   
     let mx = -1000, my = -1000;
     window.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
 
     function loop() {
-        // Fade out for trails
+        
         ctx.fillStyle = "rgba(17, 17, 17, 0.3)"; 
         ctx.fillRect(0, 0, width, height);
 
         particles.forEach(p => {
-            // Physics
+          
             if (isMagnetized && p.target) {
-                // Seek Target (Spring force)
+             
                 const dx = p.target.x - p.x;
                 const dy = p.target.y - p.y;
-                // Stronger pull for quicker assembly
+               
                 p.vx += dx * 0.08; 
                 p.vy += dy * 0.08;
                 p.vx *= 0.85; // Dampen
