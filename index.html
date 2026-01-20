@@ -37,11 +37,11 @@
     let textPoints = [];
     let isMagnetized = false;
 
-    // "PRESS AND HOLD [SPACE] TO SYNCHRONIZE DATA" (ASCII Codes)
+ 
     const _c = [80,82,69,83,83,32,65,78,68,32,72,79,76,68,32,91,83,80,65,67,69,93,32,84,79,32,83,89,78,67,72,82,79,78,73,90,69,32,68,65,84,65];
     const _h = String.fromCharCode(..._c);
 
-    // Custom Selection State
+
     let sel = { x: 0, y: 0, w: 0, h: 0, active: false };
 
     const _l = [
@@ -122,7 +122,7 @@
     
     let mx = -1000, my = -1000;
     
-    // Mouse Events for Custom Selection
+    
     window.addEventListener('mousedown', (e) => {
         sel.x = e.clientX;
         sel.y = e.clientY;
@@ -142,8 +142,7 @@
 
     window.addEventListener('mouseup', () => {
         sel.active = false;
-        // Optional: clear selection on release or keep it? 
-        // Standard behavior is keep until click. For simplicity, we clear on click.
+      
         sel.w = 0; sel.h = 0;
     });
 
@@ -151,26 +150,26 @@
         ctx.fillStyle = "rgba(17, 17, 17, 0.3)"; 
         ctx.fillRect(0, 0, width, height);
 
-        // 1. Draw Hint (Invisible Layer)
+     
         ctx.save();
         ctx.font = "14px monospace";
         ctx.textAlign = "center";
-        ctx.fillStyle = "#161616"; // Almost background color
+        ctx.fillStyle = "#161616"; 
         ctx.fillText(_h, width/2, height - 30);
         ctx.restore();
 
-        // 2. Draw Selection & Reveal
+
         if (sel.w !== 0 || sel.h !== 0) {
             ctx.save();
-            ctx.fillStyle = "rgba(0, 255, 65, 0.3)"; // Selection Highlight
+            ctx.fillStyle = "rgba(0, 255, 65, 0.3)";
             ctx.fillRect(sel.x, sel.y, sel.w, sel.h);
             
-            // Clip to selection area
+            
             ctx.beginPath();
             ctx.rect(sel.x, sel.y, sel.w, sel.h);
             ctx.clip();
             
-            // Draw Hint Again (Visible Color)
+       
             ctx.fillStyle = "#ffffff"; 
             ctx.font = "14px monospace";
             ctx.textAlign = "center";
@@ -222,3 +221,4 @@
 </script>
 </body>
 </html>
+
